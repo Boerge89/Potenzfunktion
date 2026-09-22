@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interaktive gestufte Hilfen: Potenzfunktionen (Klasse 11)</title>
+    
+    <!-- KaTeX für mathematische Formeldarstellung -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --card-bg: #ffffff;
+            --text: #0f172a;
+            --border: #e2e8f0;
+            
+            --h1-bg: #eff6ff;
+            --h1-border: #3b82f6;
+            --h2-bg: #fffbebfb;
+            --h2-border: #f59e0b;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: #f8fafc;
+            color: var(--text);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            margin-bottom: 25px;
+            border-left: 6px solid var(--primary);
+        }
+
+        header h1 {
+            margin: 0 0 10px 0;
+            color: var(--primary);
+            font-size: 1.8rem;
+        }
+
+        header p {
+            margin: 0;
+            color: #64748b;
+        }
+
+        .task-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            border: 1px solid var(--border);
+        }
+
+        .task-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-top: 0;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #f1f5f9;
+        }
+
+        .subtask {
+            background: #fafafa;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 18px;
+            margin-bottom: 20px;
+        }
+
+        .subtask-header {
+            font-weight: 600;
+            font-size: 1.05rem;
+            margin-bottom: 10px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        button.hint-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        button.hint-btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        button.check-btn {
+            background-color: #059669;
+            color: white;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            margin-top: 12px;
+        }
+
+        button.check-btn:hover {
+            background-color: #047857;
+        }
+
+        button.reset-btn {
+            background-color: #64748b;
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+
+        .hint-step {
+            display: none;
+            margin-top: 12px;
+            padding: 14px 16px;
+            border-radius: 8px;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .hint-step.level-1 {
+            background-color: var(--h1-bg);
+            border-left: 4px solid var(--h1-border);
+        }
+
+        .hint-step.level-2 {
+            background-color: var(--h2-bg);
+            border-left: 4px solid var(--h2-border);
+        }
+
+        .hint-label {
+            font-weight: bold;
+            font-size: 0.9rem;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .level-1 .hint-label { color: #1d4ed8; }
+        .level-2 .hint-label { color: #b45309; }
+
+        /* Formular-Elemente im Lückentext */
+        input[type="text"], select {
+            padding: 4px 8px;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+            font-size: 0.95rem;
+            background-color: #ffffff;
+            transition: all 0.2s;
+        }
+
+        input[type="text"]:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+        }
+
+        .feedback-msg {
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+
+        ul.task-list {
+            padding-left: 20px;
+            margin: 8px 0;
+        }
+
+        ul.task-list li {
+            margin-bottom: 8px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Interaktive Hilfen: Potenzfunktionen (Klasse 11)</h1>
+        <p>Mathematik • Nutze Hilfe 1 für einen Denkanstoß und Hilfe 2 zum aktiv-interaktiven Erarbeiten des Lösungswegs.</p>
+    </header>
+
+    <!-- AUFGABE 2 -->
+    <div class="task-card">
+        <div class="task-title">Aufgabe 2: Skizzieren von Potenzfunktionen</div>
+        <p>Skizzieren Sie den Graphen der Potenzfunktion $f$ mithilfe einer Wertetabelle für $x \in [-3; 3]$ .</p>
+        <p>a) $f(x) = 3x^2$ &nbsp;|&nbsp; b) $f(x) = -\frac{1}{3}x^3$ &nbsp;|&nbsp; c) $f(x) = -\frac{1}{2}x^4$ &nbsp;|&nbsp; d) $f(x) = -1{,}5x^3$ </p>
+
+        <div class="subtask" id="task-2">
+            <div class="btn-group">
+                <button class="hint-btn" onclick="showNextHint('2')">Hilfe freischalten</button>
+                <button class="reset-btn" onclick="resetHints('2')">Zurücksetzen</button>
+            </div>
+
+            <div class="hint-step level-1" id="hint-2-1">
+                <div class="hint-label">Hilfe 1: Denkimpuls & Wertetabelle</div>
+                Erstelle eine Wertetabelle für ganzzahlige $x$-Werte im Intervall $[-3; 3]$ . Achte beim Einsetzen negativer Zahlen besonders auf die Klammersetzung und die Vorzeichenregeln (z. B. $(-2)^3 = -8$, aber $(-2)^2 = 4$)  .
+            </div>
+
+            <div class="hint-step level-2" id="hint-2-2">
+                <div class="hint-label">Hilfe 2: Interaktiver Symmetrie- & Rechentest</div>
+                <p>Vervollständige die Aussagen und berechne den Beispielwert:</p>
+                <ul class="task-list">
+                    <li>Bei geraden Exponenten ($x^2, x^4$) ist der Graph 
+                        <select data-ans="achsensymmetrisch">
+                            <option value="">-- bitte wählen --</option>
+                            <option value="achsensymmetrisch">achsensymmetrisch zur y-Achse</option>
+                            <option value="punktsymmetrisch">punktsymmetrisch zum Ursprung</option>
+                        </select>  .
+                    </li>
+                    <li>Bei ungeraden Exponenten ($x^3$) ist der Graph 
+                        <select data-ans="punktsymmetrisch">
+                            <option value="">-- bitte wählen --</option>
+                            <option value="achsensymmetrisch">achsensymmetrisch zur y-Achse</option>
+                            <option value="punktsymmetrisch">punktsymmetrisch zum Ursprung</option>
+                        </select>  .
+                    </li>
+                    <li>Beispielrechnung für Teilaufgabe a) $f(x) = 3x^2$:<br>
+                        $f(-3) = 3 \cdot (-3)^2 = $ <input type="text" size="4" data-ans="27">  
+                    </li>
+                </ul>
+                <button class="check-btn" onclick="checkInteractive('hint-2-2')">Antworten prüfen</button>
+                <div class="feedback-msg"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AUFGABE 3 -->
+    <div class="task-card">
+        <div class="task-title">Aufgabe 3: Punkte auf dem Graphen & fehlende Koordinaten </div>
+        
+        <!-- 3a -->
+        <div class="subtask" id="task-3a">
+            <div class="subtask-header">a) Punkte auf $f(x) = -\frac{3}{8}x^4$ bestimmen </div>
+            <div class="btn-group">
+                <button class="hint-btn" onclick="showNextHint('3a')">Hilfe freischalten</button>
+                <button class="reset-btn" onclick="resetHints('3a')">Zurücksetzen</button>
+            </div>
+
+            <div class="hint-step level-1" id="hint-3a-1">
+                <div class="hint-label">Hilfe 1: Ansatz</div>
+                Wähle drei einfache $x$-Werte (z. B. $x = 0, 1, 2$) und berechne jeweils den zugehörigen Funktionswert $y = f(x)$.
+            </div>
+
+            <div class="hint-step level-2" id="hint-3a-2">
+                <div class="hint-label">Hilfe 2: Lückentext-Berechnung</div>
+                Berechne die $y$-Werte für die gewählten Stellen $x$  :
+                <ul class="task-list">
+                    <li>Für $x = 0 \implies f(0) = $ <input type="text" size="4" data-ans="0">  </li>
+                    <li>Für $x = 1 \implies f(1) = $ <input type="text" size="6" data-ans="-3/8|-0.375|-0,375">  </li>
+                    <li>Für $x = 2 \implies f(2) = -\frac{3}{8} \cdot$ <input type="text" size="4" data-ans="16"> = <input type="text" size="4" data-ans="-6">  </li>
+                </ul>
+                <button class="check-btn" onclick="checkInteractive('hint-3a-2')">Antworten prüfen</button>
+                <div class="feedback-msg"></div>
+            </div>
+        </div>
+
+        <!-- 3b -->
+        <div class="subtask" id="task-3b">
+            <div class="subtask-header">b) Fehlende Koordinaten für $f(x) = 2x^5$ bestimmen </div>
+            <p>$P(2 \mid y)$, $Q(-1 \mid y)$, $R(x \mid -64)$, $S\left(x \mid \frac{1}{100000}\right)$ </p>
+            <div class="btn-group">
+                <button class="hint-btn" onclick="showNextHint('3b')">Hilfe freischalten</button>
+                <button class="reset-btn" onclick="resetHints('3b')">Zurücksetzen</button>
+            </div>
+
+            <div class="hint-step level-1" id="hint-3b-1">
+                <div class="hint-label">Hilfe 1: Ansatz</div>
+                <ul>
+                    <li>Bei gegebenem $x$-Wert ($P, Q$): Setze $x$ direkt in $f(x) = 2x^5$ ein .</li>
+                    <li>Bei gegebenem $y$-Wert ($R, S$): Setze $f(x) = y$ und löse die Gleichung nach $x$ auf .</li>
+                </ul>
+            </div>
+
+            <div class="hint-step level-2" id="hint-3b-2">
+                <div class="hint-label">Hilfe 2: Interaktive Koordinatenberechnung</div>
+                Ergänze die fehlenden Zahlen in den Rechenschritten  :
+                <ul class="task-list">
+                    <li><strong>Punkt P:</strong> $y_P = 2 \cdot 2^5 = $ <input type="text" size="4" data-ans="64">  </li>
+                    <li><strong>Punkt Q:</strong> $y_Q = 2 \cdot (-1)^5 = $ <input type="text" size="4" data-ans="-2">  </li>
+                    <li><strong>Punkt R:</strong> $-64 = 2x^5 \implies x^5 = -32 \implies x = $ <input type="text" size="4" data-ans="-2">  </li>
+                    <li><strong>Punkt S:</strong> $\frac{1}{100000} = 2x^5 \implies x^5 = 0{,}000005 \implies x \approx $ <input type="text" size="4" data-ans="0.1|0,1">  </li>
+                </ul>
+                <button class="check-btn" onclick="checkInteractive('hint-3b-2')">Antworten prüfen</button>
+                <div class="feedback-msg"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AUFGABE 9 -->
+    <div class="task-card">
+        <div class="task-title">Aufgabe 9: Symmetrienachweis </div>
+        <p>Gegeben ist die Funktion $f$ mit $f(x) = -\frac{1}{2}x^4$ .</p>
+
+        <div class="subtask" id="task-9">
+            <div class="btn-group">
+                <button class="hint-btn" onclick="showNextHint('9')">Hilfe freischalten</button>
+                <button class="reset-btn" onclick="resetHints('9')">Zurücksetzen</button>
+            </div>
+
+            <div class="hint-step level-1" id="hint-9-1">
+                <div class="hint-label">Hilfe 1: Ansatz für a) und b)</div>
+                <ul>
+                    <li><strong>a)</strong> Berechne $f(4)$ und $f(-4)$ getrennt voneinander und vergleiche die Ergebnisse .</li>
+                    <li><strong>b)</strong> Ersetze in der Funktionsgleichung $x$ durch $(-x)$ und nutze das Symmetriekriterium $f(-x) = f(x)$ .</li>
+                </ul>
+            </div>
+
+            <div class="hint-step level-2" id="hint-9-2">
+                <div class="hint-label">Hilfe 2: Lückentext zum Symmetrienachweis</div>
+                <ul class="task-list">
+                    <li><strong>Zu a):</strong> $f(-4) = -\frac{1}{2} \cdot (-4)^4 = -\frac{1}{2} \cdot 256 = $ <input type="text" size="5" data-ans="-128">  .</li>
+                    <li><strong>Zu b):</strong> Ergänze den Term nach Ausklammern/Potenzieren:<br>
+                        $(-x)^4 = $ 
+                        <select data-ans="x^4">
+                            <option value="">-- bitte wählen --</option>
+                            <option value="x^4">x⁴</option>
+                            <option value="-x^4">-x⁴</option>
+                        </select>  
+                    </li>
+                    <li>Daher gilt $f(-x) = f(x)$ und der Graph ist 
+                        <select data-ans="achsensymmetrisch">
+                            <option value="">-- bitte wählen --</option>
+                            <option value="achsensymmetrisch">achsensymmetrisch zur y-Achse</option>
+                            <option value="punktsymmetrisch">punktsymmetrisch zum Ursprung</option>
+                        </select> .
+                    </li>
+                </ul>
+                <button class="check-btn" onclick="checkInteractive('hint-9-2')">Antworten prüfen</button>
+                <div class="feedback-msg"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AUFGABE 10 -->
+    <div class="task-card">
+        <div class="task-title">Aufgabe 10: Eigenschaften von Potenzfunktionen </div>
+        <p>Geben Sie die Gleichungen von zwei Potenzfunktionen an, zu denen die Aussage passt .</p>
+
+        <div class="subtask" id="task-10">
+            <div class="btn-group">
+                <button class="hint-btn" onclick="showNextHint('10')">Hilfe freischalten</button>
+                <button class="reset-btn" onclick="resetHints('10')">Zurücksetzen</button>
+            </div>
+
+            <div class="hint-step level-1" id="hint-10-1">
+                <div class="hint-label">Hilfe 1: Einfluss von Exponent $n$ und Faktor $a$</div>
+                Betrachte die allgemeine Form $f(x) = a \cdot x^n$ :
+                <ul>
+                    <li>Ein <strong>gerader Exponent $n$</strong> führt zu Achsensymmetrie zur $y$-Achse und verhindert negative Werte, wenn $a > 0$ ist  .</li>
+                    <li>Für $x = 1$ gilt stets $1^n = 1$, woraus $f(1) = a \cdot 1 = a$ folgt  .</li>
+                </ul>
+            </div>
+
+            <div class="hint-step level-2" id="hint-10-2">
+                <div class="hint-label">Hilfe 2: Parameter-Auswahl & Bestimmung</div>
+                Bestimme die notwendigen Eigenschaften von $a$ und $n$ in $f(x) = a \cdot x^n$  :
+                <ul class="task-list">
+                    <li><strong>a) Achsensymmetrisch zur y-Achse:</strong> Der Exponent $n$ muss 
+                        <select data-ans="gerade">
+                            <option value="">-- wählen --</option>
+                            <option value="gerade">gerade</option>
+                            <option value="ungerade">ungerade</option>
+                        </select> sein  .
+                    </li>
+                    <li><strong>b) Graph geht durch $P(1 \mid 3)$:</strong> Da $f(1) = a \cdot 1^n = a$ ist, muss der Streckungsfaktor $a =$ <input type="text" size="3" data-ans="3"> sein  .</li>
+                    <li><strong>c) Alle Funktionswerte positiv oder null:</strong> Dafür muss $a$ 
+                        <select data-ans="positiv">
+                            <option value="">-- wählen --</option>
+                            <option value="positiv">positiv (a > 0)</option>
+                            <option value="negativ">negativ (a < 0)</option>
+                        </select> und der Exponent $n$ 
+                        <select data-ans="gerade">
+                            <option value="">-- wählen --</option>
+                            <option value="gerade">gerade</option>
+                            <option value="ungerade">ungerade</option>
+                        </select> sein  .
+                    </li>
+                </ul>
+                <button class="check-btn" onclick="checkInteractive('hint-10-2')">Antworten prüfen</button>
+                <div class="feedback-msg"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AUFGABE 11 -->
+    <div class="task-card">
+        <div class="task-title">Aufgabe 11: Funktionsgleichung aus zwei Punkten bestimmen </div>
+        <div class="subtask" id="task-11">
+            <div class="subtask-header">b) Funktion ermitteln für $P\left(1 \mid -\frac{1}{2}\right)$ und $Q\left(-\frac{1}{2} \mid -\frac{1}{32}\right)$ </div>
+            
+            <div class="btn-group">
+                <button class="hint-btn" onclick="showNextHint('11')">Hilfe freischalten</button>
+                <button class="reset-btn" onclick="resetHints('11')">Zurücksetzen</button>
+            </div>
+
+            <div class="hint-step level-1" id="hint-11-1">
+                <div class="hint-label">Hilfe 1: Carls Strategie (Denkimpuls)</div>
+                Carl setzt zuerst den Punkt mit $x=1$ ein, da $1^n = 1$ für jede Zahl $n$ gilt  . Dadurch lässt sich sofort der Streckungsfaktor $a$ berechnen  . Erst danach setzt er den zweiten Punkt ein, um den Exponenten $n$ zu ermitteln  .
+            </div>
+
+            <div class="hint-step level-2" id="hint-11-2">
+                <div class="hint-label">Hilfe 2: Interaktiver Lösungsweg</div>
+                Schrittweise Ermittlung von $a$ und $n$  :
+                <ul class="task-list">
+                    <li><strong>Schritt 1 ($P$ einsetzen):</strong> $-\frac{1}{2} = a \cdot 1^n \implies a =$ <input type="text" size="6" data-ans="-0.5|-0,5|-1/2">  </li>
+                    <li><strong>Schritt 2 ($Q$ einsetzen & umformen):</strong><br>
+                        $-\frac{1}{32} = -\frac{1}{2} \cdot \left(-\frac{1}{2}\right)^n \implies \frac{1}{16} = \left(-\frac{1}{2}\right)^n \implies n =$ <input type="text" size="3" data-ans="4">  
+                    </li>
+                    <li><strong>Schritt 3 (Funktionsgleichung):</strong> $f(x) = -\frac{1}{2} x^$ <input type="text" size="2" data-ans="4">  </li>
+                </ul>
+                <button class="check-btn" onclick="checkInteractive('hint-11-2')">Antworten prüfen</button>
+                <div class="feedback-msg"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AUFGABE 12 -->
+    <div class="task-card">
+        <div class="task-title">Aufgabe 12: Vergleich von Funktionswerten </div>
+        <p>Gegeben sind $f(x) = 4x^3$, $g(x) = x^5$ und $h(x) = 0{,}1x^4$ .</p>
+
+        <div class="subtask" id="task-12">
+            <div class="btn-group">
+                <button class="hint-btn" onclick="showNextHint('12')">Hilfe freischalten</button>
+                <button class="reset-btn" onclick="resetHints('12')">Zurücksetzen</button>
+            </div>
+
+            <div class="hint-step level-1" id="hint-12-1">
+                <div class="hint-label">Hilfe 1: Mathematische Ansätze</div>
+                <ul>
+                    <li><strong>a)</strong> $x^5 = 0{,}1x^4 \implies x^5 - 0{,}1x^4 = 0$ . Klammere $x^4$ aus  .</li>
+                    <li><strong>b)</strong> $0{,}1x^4 < 4x^3$ . Untersuche die Fälle $x > 0$, $x = 0$ und $x < 0$  .</li>
+                    <li><strong>c)</strong> $4x^3 > x^5 \implies x^5 - 4x^3 < 0$ . Klammere $x^3$ aus: $x^3(x^2 - 4) < 0$  .</li>
+                </ul>
+            </div>
+
+            <div class="hint-step level-2" id="hint-12-2">
+                <div class="hint-label">Hilfe 2: Lücken in den Umformungen ergänzen</div>
+                <ul class="task-list">
+                    <li><strong>a)</strong> $x^4(x -$ <input type="text" size="4" data-ans="0.1|0,1"> $) = 0 \implies x_1 = 0$, $x_2 =$ <input type="text" size="4" data-ans="0.1|0,1">  </li>
+                    <li><strong>b)</strong> Für $x > 0$ teile durch $x^3$: $0{,}1x < 4 \implies x <$ <input type="text" size="4" data-ans="40">  </li>
+                    <li><strong>c)</strong> Betrachte $x^3(x^2 - 4) < 0$. Die Ungleichung gilt für:<br>
+                        $0 < x <$ <input type="text" size="3" data-ans="2"> sowie für $x <$ <input type="text" size="3" data-ans="-2">  .
+                    </li>
+                </ul>
+                <button class="check-btn" onclick="checkInteractive('hint-12-2')">Antworten prüfen</button>
+                <div class="feedback-msg"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AUFGABE 14 -->
+    <div class="task-card">
+        <div class="task-title">Aufgabe 14: Aussagen überprüfen („Gilt immer – gilt nie – es kommt darauf an“) </div>
+        <div class="subtask" id="task-14">
+            <div class="btn-group">
+                <button class="hint-btn" onclick="showNextHint('14')">Hilfe freischalten</button>
+                <button class="reset-btn" onclick="resetHints('14')">Zurücksetzen</button>
+            </div>
+
+            <div class="hint-step level-1" id="hint-14-1">
+                <div class="hint-label">Hilfe 1: Strategien für die Teilaufgaben</div>
+                <ul>
+                    <li><strong>a) & c) Punktprobe:</strong> Setze den Punkt in die Funktionsgleichung ein und prüfe, wann die Gleichung stimmt  .</li>
+                    <li><strong>b) & d) Grenzverhalten:</strong> Prüfe das Verhalten für $x \to \pm\infty$ anhand des Vorzeichens von $a$ und der Parität von $n$ (gerade/ungerade)  .</li>
+                    <li><strong>e) Schnittpunkte:</strong> Setze $f(x) = g(x) \implies ax^2 = ax^6$  .</li>
+                </ul>
+            </div>
+
+            <div class="hint-step level-2" id="hint-14-2">
+                <div class="hint-label">Hilfe 2: Interaktive Beurteilung aller Aussagen</div>
+                Wähle für jede Aussage die richtige Einschätzung aus  :
+                <ul class="task-list">
+                    <li><strong>a)</strong> $f(x) = ax^n$ geht durch $P\left(\frac{1}{2} \mid \frac{1}{2}a\right)$: 
+                        <select data-ans="es kommt darauf an">
+                            <option value="">-- bitte wählen --</option>
+                            <option value="gilt immer">Gilt immer</option>
+                            <option value="gilt nie">Gilt nie</option>
+                            <option value="es kommt darauf an">Es kommt darauf an (nur für n=1)</option>
+                        </select>  
+                    </li>
+                    <li><strong>b)</strong> $f(x) = ax^n$ verläuft von links oben nach rechts unten: 
+                        <select data-ans="es kommt darauf an">
+                            <option value="">-- bitte wählen --</option>
+                            <option value="gilt immer">Gilt immer</option>
+                            <option value="gilt nie">Gilt nie</option>
+                            <option value="es kommt darauf an">Es kommt darauf an (a < 0 & n ungerade)</option>
+                        </select>  
+                    </li>
+                    <li><strong>c)</strong> $f(x) = ax^2$ geht durch $P(2 \mid 1)$: 
+                        <select data-ans="es kommt darauf an">
+                            <option value="">-- bitte wählen --</option>
+                            <option value="gilt immer">Gilt immer</option>
+                            <option value="gilt nie">Gilt nie</option>
+                            <option value="es kommt darauf an">Es kommt darauf an (nur für a=0,25)</option>
+                        </select>  
+                    </li>
+                    <li><strong>d)</strong> $f(x) = -4x^n$ ($n$ gerade) verläuft von links unten nach rechts unten: 
+                        <select data-ans="gilt immer">
+                            <option value="">-- bitte wählen --</option>
+                            <option value="gilt immer">Gilt immer</option>
+                            <option value="gilt nie">Gilt nie</option>
+                            <option value="es kommt darauf an">Es kommt darauf an</option>
+                        </select>  
+                    </li>
+                    <li><strong>e)</strong> $f(x) = ax^2$ und $g(x) = ax^6$ schneiden sich in zwei Punkten: 
+                        <select data-ans="gilt immer">
+                            <option value="">-- bitte wählen --</option>
+                            <option value="gilt immer">Gilt immer</option>
+                            <option value="gilt nie">Gilt nie</option>
+                            <option value="es kommt darauf an">Es kommt darauf an</option>
+                        </select>  
+                    </li>
+                </ul>
+                <button class="check-btn" onclick="checkInteractive('hint-14-2')">Antworten prüfen</button>
+                <div class="feedback-msg"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showNextHint(taskId) {
+        for (let i = 1; i <= 2; i++) {
+            const hintElem = document.getElementById(`hint-${taskId}-${i}`);
+            if (hintElem && hintElem.style.display !== 'block') {
+                hintElem.style.display = 'block';
+                
+                if (window.renderMathInElement) {
+                    renderMathInElement(hintElem, {
+                        delimiters: [
+                            {left: '$$', right: '$$', display: true},
+                            {left: '$', right: '$', display: false}
+                        ]
+                    });
+                }
+                break;
+            }
+        }
+    }
+
+    function resetHints(taskId) {
+        for (let i = 1; i <= 2; i++) {
+            const hintElem = document.getElementById(`hint-${taskId}-${i}`);
+            if (hintElem) {
+                hintElem.style.display = 'none';
+                
+                // Zurücksetzen aller Formular-Eingaben
+                const inputs = hintElem.querySelectorAll('input, select');
+                inputs.forEach(input => {
+                    input.value = '';
+                    input.style.borderColor = '#cbd5e1';
+                    input.style.backgroundColor = '#ffffff';
+                });
+                
+                const feedback = hintElem.querySelector('.feedback-msg');
+                if (feedback) feedback.innerHTML = '';
+            }
+        }
+    }
+
+    function checkInteractive(containerId) {
+        const container = document.getElementById(containerId);
+        const inputs = container.querySelectorAll('[data-ans]');
+        let allCorrect = true;
+        let filledCount = 0;
+
+        inputs.forEach(input => {
+            const allowedAnswers = input.getAttribute('data-ans').split('|').map(s => s.trim().toLowerCase().replace(',', '.'));
+            const userValue = input.value.trim().toLowerCase().replace(',', '.');
+
+            if (userValue !== '') {
+                filledCount++;
+            }
+
+            if (userValue !== '' && allowedAnswers.includes(userValue)) {
+                input.style.borderColor = '#22c55e';
+                input.style.backgroundColor = '#f0fdf4';
+            } else {
+                input.style.borderColor = '#ef4444';
+                input.style.backgroundColor = '#fef2f2';
+                allCorrect = false;
+            }
+        });
+
+        const feedback = container.querySelector('.feedback-msg');
+        if (feedback) {
+            if (filledCount === 0) {
+                feedback.innerHTML = '<span style="color: #d97706; font-weight: bold;">Bitte fülle zuerst die Lücken aus.</span>';
+            } else if (allCorrect) {
+                feedback.innerHTML = '<span style="color: #15803d; font-weight: bold;">✓ Super, alle Eingaben sind richtig!</span>';
+            } else {
+                feedback.innerHTML = '<span style="color: #b91c1c; font-weight: bold;">✗ Noch nicht ganz richtig. Überprüfe die rot markierten Felder.</span>';
+            }
+        }
+    }
+</script>
+
+</body>
+</html>
